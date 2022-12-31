@@ -176,5 +176,5 @@ factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbo
 loglik = function(x_cov, lambda, phi, e_obj) {
   phi_lambda = lambda / phi
   log_det = sum(log(phi)) + log(det(diag(1, ncol(lambda)) + crossprod(lambda, phi_lambda)))
-  -nrow(e_obj$ez)/2 * (log_det + sum(diag(e_obj$inverse %*% x_cov)))
+  -nrow(e_obj$ez)/2 * (log_det + sum(e_obj$inverse * x_cov))
 }
