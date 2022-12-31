@@ -79,6 +79,8 @@ update_phi= function(xx, n, xez, lambda) diag(xx - tcrossprod(lambda, xez))/n
 #'
 #' xez: Covariance between observed and latent factors
 #'
+#' inverse: The inverse covariance
+#'
 #' @note For Internal Use
 e_step = function(x, lambda, phi) {
   inverse = fast_inverse(lambda, phi)
@@ -86,7 +88,7 @@ e_step = function(x, lambda, phi) {
   ez = expected_scores(x, beta)
   ezz = expected_cov(ez, beta, lambda)
   xez = get_xEz(x, ez)
-  return(ls = list(ez = ez, ezz = ezz, xez = xez))
+  return(ls = list(ez = ez, ezz = ezz, xez = xez, inverse = inverse))
 }
 
 #' EM Algorithm for Factor Analsysis: M-step
@@ -139,13 +141,13 @@ factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbo
 
   lambda = as.matrix(svd(x)$v[,1:n_factors])
   xx = crossprod(x)
-  x_cov = xx/(nrow(x)-1)
+  x_cov = xx/nrow(x)
   phi = diag(x_cov)
   crit = rep(NA, n_iter+1)
 
   for (i in 1:n_iter) {
     e_obj = e_step(x, lambda, phi)
-    crit[i] = loglik(x, lambda, phi, e_obj)
+    crit[i] = loglik(x_cov, lambda, phi, e_obj)
     m_obj = m_step(xx, e_obj, nrow(x))
     lambda = m_obj$lambda
     phi = m_obj$phi
@@ -154,7 +156,7 @@ factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbo
   }
 
   e_obj = e_step(x, lambda, phi)
-  crit[i+1] = loglik(x, lambda, phi, e_obj)
+  crit[i+1] = loglik(x_cov, lambda, phi, e_obj)
 
   if (is.null(rotation)) loadings = lambda
   else loadings = rotation(lambda, ...)
@@ -163,20 +165,16 @@ factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbo
 
 }
 
-#' Expected Log-Likelihood
+#' Log-Likelihood
 #'
-#' @param x Sample matrix (dimension N by P)
+#' @param x_cov Sample covariance matrix
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @param phi Vector of noise variance
 #' @param e_obj A list of expected values from the E-Step
 #' @return The expected log-likelihood criterion
 #' @note For Internal Use
-loglik = function(x, lambda, phi, e_obj) {
-  log_det = sum(log(phi))
-  xp = t(x) / sqrt(phi)
-  xpx = sum(diag(tcrossprod(xp)))
-  lambda_phi = lambda/phi
-  xplz = sum(diag(crossprod(e_obj$ez, x %*% lambda_phi)))
-  lplzz = sum(diag(crossprod(lambda, lambda_phi) %*% e_obj$ezz))
-  -nrow(x)/2*log_det + xpx/2 + xplz - lplzz/2
+loglik = function(x_cov, lambda, phi, e_obj) {
+  phi_lambda = lambda / phi
+  log_det = sum(log(phi)) + log(det(diag(1, ncol(lambda)) + crossprod(lambda, phi_lambda)))
+  -nrow(e_obj$ez)/2 * (log_det + sum(diag(e_obj$inverse %*% x_cov)))
 }
