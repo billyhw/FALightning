@@ -4,7 +4,14 @@
 \alias{factor_analyzer}
 \title{EM Algorithm for Factor Analsysis}
 \usage{
-factor_analyzer(x, n_factors, n_iter = 200, rotation = varimax, ...)
+factor_analyzer(
+  x,
+  n_factors,
+  n_iter = 200,
+  rotation = varimax,
+  verbose = F,
+  ...
+)
 }
 \arguments{
 \item{x}{Sample matrix (dimension N by P)}
@@ -15,6 +22,8 @@ factor_analyzer(x, n_factors, n_iter = 200, rotation = varimax, ...)
 
 \item{rotation}{A function for factor rotation, e.g. varimax or oblimin from the GPArotation package}
 
+\item{verbose}{Whether to display EM updates}
+
 \item{...}{Other parameters passed to the "rotation" function}
 }
 \value{
@@ -22,7 +31,8 @@ A list containing:
 \describe{
   \item{loadings}{If rotation = NULL, the factor loadings estimate. Otherwise, the object returned by the "rotation" function.}
   \item{phi}{The phi vector estimate}
-  \item{ez}{The expected factor scores}
+  \item{scores}{The expected factor scores}
+  \item{crit}{The log-likelihood criterion per iteration}
 }
 }
 \description{

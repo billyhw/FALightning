@@ -4,19 +4,21 @@
 \alias{m_step}
 \title{EM Algorithm for Factor Analsysis: M-step}
 \usage{
-m_step(x, e_obj)
+m_step(xx, e_obj, n)
 }
 \arguments{
-\item{x}{Sample matrix (dimension N by P)}
+\item{xx}{The cross-product matrix of the sample matrix}
 
 \item{e_obj}{A list of expected values from the E-Step}
+
+\item{n}{Sample size}
 }
 \value{
 A list containing:
-
-lambda: The updated lambda matrix
-
-phi: The updated phi vector
+\describe{
+\item{lambda}{The updated lambda matrix}
+\item{phi}{The updated phi vector}
+}
 }
 \description{
 EM Algorithm for Factor Analsysis: M-step

@@ -9,16 +9,18 @@ e_step(x, lambda, phi)
 \arguments{
 \item{x}{Sample matrix (dimension N by P')}
 
-\item{beta}{Coefficients from get_beta()}
+\item{lambda}{Factor loading matrix (dimension P by P')}
+
+\item{phi}{Vector of noise variance}
 }
 \value{
 A list containing:
-
-ez: Expected latent scores from expected_scores()
-
-ezz: Expected covariance of the latent factors from expected_cov()
-
-xez: Covariance between observed and latent factors
+\describe{
+\item{ez}{Expected latent scores from expected_scores()}
+\item{ezz}{Expected covariance of the latent factors from expected_cov()}
+\item{xez}{Covariance between observed and latent factors}
+\item{inverse}{The inverse covariance}
+}
 }
 \description{
 EM Algorithm for Factor Analsysis: E-step
