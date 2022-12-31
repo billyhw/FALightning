@@ -21,7 +21,7 @@ get_beta = function(lambda, inverse) crossprod(lambda, inverse)
 
 #' Expected Latent Scores
 #'
-#' @param x Sample matrix (dimension N by P')
+#' @param x Sample matrix (dimension N by P)
 #' @param beta Coefficients from get_beta()
 #' @return Expected latent scores conditioned on observed data
 #' @note For Internal Use
@@ -42,7 +42,7 @@ expected_cov = function(ez, beta, lambda) {
 
 #' Covariance Between Observed Samples and Latent Factors
 #'
-#' @param x Sample matrix (dimension N by P')
+#' @param x Sample matrix (dimension N by P)
 #' @param ez Expected latent scores from expected_scores()
 #' @return Covariance between observed and latent scores
 #' @note For Internal Use
@@ -58,7 +58,7 @@ update_lambda = function(xez, ezz) xez %*% solve(ezz)
 
 #' Phi Update
 #'
-#' @param x Sample matrix (dimension N by P')
+#' @param x Sample matrix (dimension N by P)
 #' @param xez Covariance between observed and latent factors
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @return The updated phi vector
@@ -89,7 +89,7 @@ e_step = function(x, lambda, phi) {
 
 #' EM Algorithm for Factor Analsysis: M-step
 #'
-#' @param x Sample matrix (dimension N by P')
+#' @param x Sample matrix (dimension N by P)
 #' @param e_obj A list of expected values from the E-Step
 #' @return A list containing:
 #'
@@ -106,7 +106,7 @@ m_step = function(x, e_obj) {
 
 #' EM Algorithm for Factor Analsysis
 #'
-#' @param x Sample matrix (dimension N by P')
+#' @param x Sample matrix (dimension N by P)
 #' @param n_factors An integer: the number of factors
 #' @param n_iter Number of EM iterations
 #' @param rotation A function for factor rotation, e.g. varimax or oblimin from the GPArotation package
