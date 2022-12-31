@@ -58,7 +58,8 @@ update_lambda = function(xez, ezz) xez %*% solve(ezz)
 
 #' Phi Update
 #'
-#' @param x Sample matrix (dimension N by P)
+#' @param x Cross-product matrix of the sample matrix
+#' @param n Sample size
 #' @param xez Covariance between observed and latent factors
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @return The updated phi vector
@@ -68,7 +69,8 @@ update_phi= function(xx, n, xez, lambda) diag(xx - tcrossprod(lambda, xez))/n
 #' EM Algorithm for Factor Analsysis: E-step
 #'
 #' @param x Sample matrix (dimension N by P')
-#' @param beta Coefficients from get_beta()
+#' @param lambda Factor loading matrix (dimension P by P')
+#' @param phi Vector of noise variance
 #' @return A list containing:
 #'
 #' ez: Expected latent scores from expected_scores()
@@ -89,8 +91,9 @@ e_step = function(x, lambda, phi) {
 
 #' EM Algorithm for Factor Analsysis: M-step
 #'
-#' @param x Sample matrix (dimension N by P)
+#' @param xx The cross-product matrix of the sample matrix
 #' @param e_obj A list of expected values from the E-Step
+#' @param n Sample size
 #' @return A list containing:
 #'
 #' lambda: The updated lambda matrix
@@ -110,6 +113,7 @@ m_step = function(xx, e_obj, n) {
 #' @param n_factors An integer: the number of factors
 #' @param n_iter Number of EM iterations
 #' @param rotation A function for factor rotation, e.g. varimax or oblimin from the GPArotation package
+#' @param verbose Whether to display EM updates
 #' @param ... Other parameters passed to the "rotation" function
 #' @return A list containing:
 #' \describe{
@@ -131,28 +135,48 @@ m_step = function(xx, e_obj, n) {
 #' fit_promax = factor_analyzer(x, 2, rotation = promax)
 #' fit_promax$loadings
 #' @export
-factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, ...) {
+factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbose = F, ...) {
 
   lambda = svd(x)$v[,1:n_factors]
   xx = crossprod(x)
   x_cov = xx/(nrow(x)-1)
   phi = diag(x_cov)
-  crit = rep(NA, n_iter)
+  crit = rep(NA, n_iter+1)
 
   for (i in 1:n_iter) {
     e_obj = e_step(x, lambda, phi)
+    crit[i] = loglik(x, lambda, phi, e_obj)
     m_obj = m_step(xx, e_obj, nrow(x))
     lambda = m_obj$lambda
     phi = m_obj$phi
-    crit[i] = mean((tcrossprod(lambda) + diag(phi) - x_cov)^2)
-    message("iter = ", i, ", crit = ", crit[i])
+    # crit[i] = mean((tcrossprod(lambda) + diag(phi) - x_cov)^2)
+    if (verbose) message("iter = ", i, ", crit = ", crit[i])
   }
 
   e_obj = e_step(x, lambda, phi)
+  crit[i+1] = loglik(x, lambda, phi, e_obj)
 
   if (is.null(rotation)) loadings = lambda
   else loadings = rotation(lambda, ...)
 
   return(ls = list(loadings = loadings, phi = phi, scores = e_obj$ez, crit = crit))
 
+}
+
+#' Expected Log-Likelihood
+#'
+#' @param x Sample matrix (dimension N by P)
+#' @param lambda Factor loading matrix (dimension P by P')
+#' @param phi Vector of noise variance
+#' @param e_obj A list of expected values from the E-Step
+#' @return The expected log-likelihood criterion
+#' @note For Internal Use
+loglik = function(x, lambda, phi, e_obj) {
+  log_det = sum(log(phi))
+  xp = t(x) / sqrt(phi)
+  xpx = sum(diag(tcrossprod(xp)))
+  lambda_phi = lambda/phi
+  xplz = sum(diag(crossprod(e_obj$ez, x %*% lambda_phi)))
+  lplzz = sum(diag(crossprod(lambda, lambda_phi) %*% e_obj$ezz))
+  -nrow(x)/2*log_det + xpx/2 + xplz - lplzz/2
 }
