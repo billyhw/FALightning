@@ -137,7 +137,7 @@ m_step = function(xx, e_obj, n) {
 #' @export
 factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbose = F, ...) {
 
-  lambda = svd(x)$v[,1:n_factors]
+  lambda = as.matrix(svd(x)$v[,1:n_factors])
   xx = crossprod(x)
   x_cov = xx/(nrow(x)-1)
   phi = diag(x_cov)
