@@ -7,7 +7,7 @@
 expected_scores(x, beta)
 }
 \arguments{
-\item{x}{Sample matrix (dimension N by P')}
+\item{x}{Sample matrix (dimension N by P)}
 
 \item{beta}{Coefficients from get_beta()}
 }

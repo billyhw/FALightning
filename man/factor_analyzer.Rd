@@ -7,7 +7,7 @@
 factor_analyzer(x, n_factors, n_iter = 200, rotation = varimax, ...)
 }
 \arguments{
-\item{x}{Sample matrix (dimension N by P')}
+\item{x}{Sample matrix (dimension N by P)}
 
 \item{n_factors}{An integer: the number of factors}
 

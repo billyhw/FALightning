@@ -7,7 +7,7 @@
 update_phi(x, xez, lambda)
 }
 \arguments{
-\item{x}{Sample matrix (dimension N by P')}
+\item{x}{Sample matrix (dimension N by P)}
 
 \item{xez}{Covariance between observed and latent factors}
 

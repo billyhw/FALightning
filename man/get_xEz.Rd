@@ -7,7 +7,7 @@
 get_xEz(x, ez)
 }
 \arguments{
-\item{x}{Sample matrix (dimension N by P')}
+\item{x}{Sample matrix (dimension N by P)}
 
 \item{ez}{Expected latent scores from expected_scores()}
 }

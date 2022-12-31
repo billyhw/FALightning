@@ -7,7 +7,7 @@
 m_step(x, e_obj)
 }
 \arguments{
-\item{x}{Sample matrix (dimension N by P')}
+\item{x}{Sample matrix (dimension N by P)}
 
 \item{e_obj}{A list of expected values from the E-Step}
 }
