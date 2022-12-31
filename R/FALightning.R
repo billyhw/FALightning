@@ -63,7 +63,7 @@ update_lambda = function(xez, ezz) xez %*% solve(ezz)
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @return The updated phi vector
 #' @note For Internal Use
-update_phi= function(x, xez, lambda) diag(crossprod(x) - tcrossprod(lambda, xez))/nrow(x)
+update_phi= function(xx, n, xez, lambda) diag(xx - tcrossprod(lambda, xez))/n
 
 #' EM Algorithm for Factor Analsysis: E-step
 #'
@@ -98,9 +98,9 @@ e_step = function(x, lambda, phi) {
 #' phi: The updated phi vector
 #'
 #' @note For Internal Use
-m_step = function(x, e_obj) {
+m_step = function(xx, e_obj, n) {
   lambda = update_lambda(e_obj$xez, e_obj$ezz)
-  phi = update_phi(x, e_obj$xez, lambda)
+  phi = update_phi(xx, nrow(x), e_obj$xez, lambda)
   return(ls = list(lambda = lambda, phi = phi))
 }
 
@@ -134,15 +134,18 @@ m_step = function(x, e_obj) {
 factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, ...) {
 
   lambda = svd(x)$v[,1:n_factors]
-  phi = diag(cov(x))
+  xx = crossprod(x)
+  x_cov = xx/(nrow(x)-1)
+  phi = diag(x_cov)
   crit = rep(NA, n_iter)
 
   for (i in 1:n_iter) {
     e_obj = e_step(x, lambda, phi)
-    m_obj = m_step(x, e_obj)
+    m_obj = m_step(xx, e_obj, nrow(x))
     lambda = m_obj$lambda
     phi = m_obj$phi
-    crit[i] = mean((tcrossprod(lambda) + diag(phi) - cov(x))^2)
+    crit[i] = mean((tcrossprod(lambda) + diag(phi) - x_cov)^2)
+    message("iter = ", i, ", crit = ", crit[i])
   }
 
   e_obj = e_step(x, lambda, phi)
