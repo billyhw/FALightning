@@ -72,15 +72,12 @@ update_phi= function(xx, n, xez, lambda) diag(xx - tcrossprod(lambda, xez))/n
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @param phi Vector of noise variance
 #' @return A list containing:
-#'
-#' ez: Expected latent scores from expected_scores()
-#'
-#' ezz: Expected covariance of the latent factors from expected_cov()
-#'
-#' xez: Covariance between observed and latent factors
-#'
-#' inverse: The inverse covariance
-#'
+#' \describe{
+#' \item{ez}{Expected latent scores from expected_scores()}
+#' \item{ezz}{Expected covariance of the latent factors from expected_cov()}
+#' \item{xez}{Covariance between observed and latent factors}
+#' \item{inverse}{The inverse covariance}
+#' }
 #' @note For Internal Use
 e_step = function(x, lambda, phi) {
   inverse = fast_inverse(lambda, phi)
@@ -97,11 +94,10 @@ e_step = function(x, lambda, phi) {
 #' @param e_obj A list of expected values from the E-Step
 #' @param n Sample size
 #' @return A list containing:
-#'
-#' lambda: The updated lambda matrix
-#'
-#' phi: The updated phi vector
-#'
+#' \describe{
+#' \item{lambda}{The updated lambda matrix}
+#' \item{phi}{The updated phi vector}
+#' }
 #' @note For Internal Use
 m_step = function(xx, e_obj, n) {
   lambda = update_lambda(e_obj$xez, e_obj$ezz)
@@ -121,7 +117,8 @@ m_step = function(xx, e_obj, n) {
 #' \describe{
 #'   \item{loadings}{If rotation = NULL, the factor loadings estimate. Otherwise, the object returned by the "rotation" function.}
 #'   \item{phi}{The phi vector estimate}
-#'   \item{ez}{The expected factor scores}
+#'   \item{scores}{The expected factor scores}
+#'   \item{crit}{The log-likelihood criterion per iteration}
 #' }
 #'
 #' @examples
@@ -171,7 +168,7 @@ factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbo
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @param phi Vector of noise variance
 #' @param e_obj A list of expected values from the E-Step
-#' @return The expected log-likelihood criterion
+#' @return The log-likelihood criterion
 #' @note For Internal Use
 loglik = function(x_cov, lambda, phi, e_obj) {
   phi_lambda = lambda / phi
