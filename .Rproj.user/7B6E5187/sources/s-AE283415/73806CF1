@@ -1,0 +1,24 @@
+{
+    "id": "73806CF1",
+    "path": "~/COVID_19/FALightning/R/FALightning.R",
+    "project_path": "R/FALightning.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1672479811375.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "cursorPosition": "145,3",
+        "scrollLine": "131"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1672477998,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1672477998,
+    "read_only": false,
+    "read_only_alternatives": []
+}
