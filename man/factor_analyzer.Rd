@@ -8,6 +8,7 @@ factor_analyzer(
   x,
   n_factors,
   n_iter = 200,
+  tol = 1e-04,
   rotation = varimax,
   verbose = F,
   ...
@@ -19,6 +20,8 @@ factor_analyzer(
 \item{n_factors}{An integer: the number of factors}
 
 \item{n_iter}{Number of EM iterations}
+
+\item{tol}{Tolerance for convergence}
 
 \item{rotation}{A function for factor rotation, e.g. varimax or oblimin from the GPArotation package}
 
@@ -33,6 +36,7 @@ A list containing:
   \item{phi}{The phi vector estimate}
   \item{scores}{The expected factor scores}
   \item{crit}{The log-likelihood criterion per iteration}
+  \item{converge_status}{Convergence status: 0 = converged, 1 = tolerance not reached, 2 = likelihood has decreased}
 }
 }
 \description{

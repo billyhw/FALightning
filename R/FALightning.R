@@ -110,6 +110,7 @@ m_step = function(xx, e_obj, n) {
 #' @param x Sample matrix (dimension N by P)
 #' @param n_factors An integer: the number of factors
 #' @param n_iter Number of EM iterations
+#' @param tol Tolerance for convergence
 #' @param rotation A function for factor rotation, e.g. varimax or oblimin from the GPArotation package
 #' @param verbose Whether to display EM updates
 #' @param ... Other parameters passed to the "rotation" function
@@ -119,6 +120,7 @@ m_step = function(xx, e_obj, n) {
 #'   \item{phi}{The phi vector estimate}
 #'   \item{scores}{The expected factor scores}
 #'   \item{crit}{The log-likelihood criterion per iteration}
+#'   \item{converge_status}{Convergence status: 0 = converged, 1 = tolerance not reached, 2 = likelihood has decreased}
 #' }
 #'
 #' @examples
@@ -134,31 +136,34 @@ m_step = function(xx, e_obj, n) {
 #' fit_promax = factor_analyzer(x, 2, rotation = promax)
 #' fit_promax$loadings
 #' @export
-factor_analyzer = function(x, n_factors, n_iter = 200, rotation = varimax, verbose = F, ...) {
+factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = varimax, verbose = F, ...) {
 
   lambda = as.matrix(svd(x)$v[,1:n_factors])
   xx = crossprod(x)
   x_cov = xx/nrow(x)
   phi = diag(x_cov)
-  crit = rep(NA, n_iter+1)
+  crit = rep(NA, n_iter)
 
   for (i in 1:n_iter) {
     e_obj = e_step(x, lambda, phi)
     crit[i] = loglik(x_cov, lambda, phi, e_obj)
+    if (i > 1) if ((crit[i]-crit[i-1]) < tol) break
     m_obj = m_step(xx, e_obj, nrow(x))
     lambda = m_obj$lambda
     phi = m_obj$phi
-    # crit[i] = mean((tcrossprod(lambda) + diag(phi) - x_cov)^2)
     if (verbose) message("iter = ", i, ", crit = ", crit[i])
   }
-
-  e_obj = e_step(x, lambda, phi)
-  crit[i+1] = loglik(x_cov, lambda, phi, e_obj)
 
   if (is.null(rotation)) loadings = lambda
   else loadings = rotation(lambda, ...)
 
-  return(ls = list(loadings = loadings, phi = phi, scores = e_obj$ez, crit = crit))
+  crit = crit[!is.na(crit)]
+  converge_status = 0
+  if ((crit[i]-crit[i-1]) > tol) converge_status = 1
+  if (any(diff(crit) < 0)) coverge_status = 2
+
+  return(ls = list(loadings = loadings, phi = phi, scores = e_obj$ez,
+                   crit = crit, converge_status = converge_status))
 
 }
 
