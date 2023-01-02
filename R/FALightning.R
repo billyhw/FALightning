@@ -138,10 +138,12 @@ m_step = function(xx, e_obj, n) {
 #' @export
 factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = varimax, verbose = F, ...) {
 
-  lambda = as.matrix(svd(x)$v[,1:n_factors])
+  svd_fit = svd(x)
+  lambda = as.matrix(svd_fit$v[,1:n_factors])
+  lambda = t(t(lambda)*(svd_fit$d[1:n_factors]/sqrt(nrow(x))))
   xx = crossprod(x)
   x_cov = xx/nrow(x)
-  phi = diag(x_cov)
+  phi = pmax(diag(x_cov - tcrossprod(lambda)), 1e-2)
   crit = rep(NA, n_iter)
 
   for (i in 1:n_iter) {
