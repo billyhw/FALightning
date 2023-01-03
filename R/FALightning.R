@@ -8,7 +8,9 @@ fast_inverse = function(lambda, phi) {
   phi_inv = 1/phi
   phi_lambda = lambda * phi_inv
   inverse = solve(diag(ncol(lambda)) + crossprod(lambda, phi_lambda))
-  diag(phi_inv) - tcrossprod(phi_lambda %*% inverse, phi_lambda)
+  inverse = -tcrossprod(phi_lambda %*% inverse, phi_lambda)
+  diag(inverse) = diag(inverse) + phi_inv
+  inverse
 }
 
 #' Coefficients for Evaluating the Expected Latent Factors
@@ -64,7 +66,7 @@ update_lambda = function(xez, ezz) xez %*% solve(ezz)
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @return The updated phi vector
 #' @note For Internal Use
-update_phi= function(xx, n, xez, lambda) diag(xx - tcrossprod(lambda, xez))/n
+update_phi= function(xx, n, xez, lambda) (diag(xx) - rowSums(lambda*xez))/n
 
 #' EM Algorithm for Factor Analsysis: E-step
 #'
