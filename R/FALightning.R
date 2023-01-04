@@ -3,7 +3,7 @@
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @param phi Vector of noise variance
 #' @return The inverse of diag(phi) + lambda*lambda^T
-#' @note For Internal Use
+#' @note For Internal Use. Deprecated as of Jan 5, 2023
 fast_inverse = function(lambda, phi) {
   phi_inv = 1/phi
   phi_lambda = lambda * phi_inv
@@ -21,13 +21,33 @@ fast_inverse = function(lambda, phi) {
 #' @note For Internal Use
 get_beta = function(lambda, inverse) crossprod(lambda, inverse)
 
+#' Coefficients for Evaluating the Expected Latent Factors: Fast Calculation
+#'
+#' @description
+#' This function merged two older functions get_beta() and fast_inverse().
+#' This allows speed ups as the entire inverse covariance is never necessary
+#' in the EM fitting procedure. Speed up is thus achieved by only
+#' performing the calculations necessary for the coefficients.
+#'
+#' @param lambda Factor loading matrix (dimension P by P')
+#' @param phi Vector of noise variance
+#' @return A set of coefficients for evaluating the expected latent factors
+#' @note For Internal Use
+fast_get_beta = function(lambda, phi) {
+  phi_lambda = lambda / phi
+  inverse = solve(diag(ncol(lambda)) + crossprod(lambda, phi_lambda))
+  beta = crossprod(lambda, phi_lambda)
+  beta = tcrossprod(beta %*% inverse, phi_lambda)
+  t(phi_lambda) - beta
+}
+
 #' Expected Latent Scores
 #'
 #' @param x Sample matrix (dimension N by P)
 #' @param beta Coefficients from get_beta()
 #' @return Expected latent scores conditioned on observed data
 #' @note For Internal Use
-expected_scores = function(x, beta) x %*% t(beta)
+expected_scores = function(x, beta) tcrossprod(x, beta)
 
 #' Expected Covariance of the Latent Factors
 #'
@@ -60,13 +80,13 @@ update_lambda = function(xez, ezz) xez %*% solve(ezz)
 
 #' Phi Update
 #'
-#' @param x Cross-product matrix of the sample matrix
+#' @param dxx Column sums-of-squares of the sample matrix
 #' @param n Sample size
 #' @param xez Covariance between observed and latent factors
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @return The updated phi vector
 #' @note For Internal Use
-update_phi= function(xx, n, xez, lambda) (diag(xx) - rowSums(lambda*xez))/n
+update_phi= function(dxx, n, xez, lambda) (dxx - rowSums(lambda*xez))/n
 
 #' EM Algorithm for Factor Analsysis: E-step
 #'
@@ -78,32 +98,34 @@ update_phi= function(xx, n, xez, lambda) (diag(xx) - rowSums(lambda*xez))/n
 #' \item{ez}{Expected latent scores from expected_scores()}
 #' \item{ezz}{Expected covariance of the latent factors from expected_cov()}
 #' \item{xez}{Covariance between observed and latent factors}
-#' \item{inverse}{The inverse covariance}
 #' }
 #' @note For Internal Use
 e_step = function(x, lambda, phi) {
-  inverse = fast_inverse(lambda, phi)
-  beta = get_beta(lambda, inverse)
+  # inverse = fast_inverse(lambda, phi)
+  # beta = get_beta(lambda, inverse)
+  beta = fast_get_beta(lambda, phi)
   ez = expected_scores(x, beta)
   ezz = expected_cov(ez, beta, lambda)
   xez = get_xEz(x, ez)
-  return(ls = list(ez = ez, ezz = ezz, xez = xez, inverse = inverse))
+  # return(ls = list(ez = ez, ezz = ezz, xez = xez, inverse = inverse))
+  return(ls = list(ez = ez, ezz = ezz, xez = xez))
 }
 
 #' EM Algorithm for Factor Analsysis: M-step
 #'
-#' @param xx The cross-product matrix of the sample matrix
+#' @param dxx Column sums-of-squares of the sample matrix
 #' @param e_obj A list of expected values from the E-Step
 #' @param n Sample size
+#' @param lambda The factor loadings
 #' @return A list containing:
 #' \describe{
 #' \item{lambda}{The updated lambda matrix}
 #' \item{phi}{The updated phi vector}
 #' }
 #' @note For Internal Use
-m_step = function(xx, e_obj, n) {
+m_step = function(dxx, e_obj, n, lambda) {
   lambda = update_lambda(e_obj$xez, e_obj$ezz)
-  phi = update_phi(xx, nrow(x), e_obj$xez, lambda)
+  phi = update_phi(dxx, n, e_obj$xez, lambda)
   return(ls = list(lambda = lambda, phi = phi))
 }
 
@@ -114,6 +136,7 @@ m_step = function(xx, e_obj, n) {
 #' @param n_iter Number of EM iterations
 #' @param tol Tolerance for convergence
 #' @param rotation A function for factor rotation, e.g. varimax or oblimin from the GPArotation package
+#' @param fast_ini Whether to use irlba for fast approximate svd initialization
 #' @param verbose Whether to display EM updates
 #' @param ... Other parameters passed to the "rotation" function
 #' @return A list containing:
@@ -138,21 +161,23 @@ m_step = function(xx, e_obj, n) {
 #' fit_promax = factor_analyzer(x, 2, rotation = promax)
 #' fit_promax$loadings
 #' @export
-factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = varimax, verbose = F, ...) {
+#' @import irlba
+factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = varimax,
+                           fast_ini = F, verbose = F, ...) {
 
-  svd_fit = svd(x)
+  if (fast_ini) svd_fit = irlba::irlba(x, nu = 0, nv = n_factors)
+  else svd_fit = svd(x, nu = 0, nv = n_factors)
   lambda = as.matrix(svd_fit$v[,1:n_factors])
   lambda = t(t(lambda)*(svd_fit$d[1:n_factors]/sqrt(nrow(x))))
-  xx = crossprod(x)
-  x_cov = xx/nrow(x)
-  phi = pmax(diag(x_cov - tcrossprod(lambda)), 1e-2)
+  dxx = colSums(x^2)
+  phi = pmax(dxx/nrow(x) - rowSums(lambda^2), 1e-2)
   crit = rep(NA, n_iter)
 
   for (i in 1:n_iter) {
     e_obj = e_step(x, lambda, phi)
-    crit[i] = loglik(x_cov, lambda, phi, e_obj)
+    crit[i] = loglik(x, dxx, lambda, phi)
     if (i > 1) if ((crit[i]-crit[i-1]) < tol) break
-    m_obj = m_step(xx, e_obj, nrow(x))
+    m_obj = m_step(dxx, e_obj, nrow(x), lambda)
     lambda = m_obj$lambda
     phi = m_obj$phi
     if (verbose) message("iter = ", i, ", crit = ", crit[i])
@@ -173,14 +198,19 @@ factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = va
 
 #' Log-Likelihood
 #'
-#' @param x_cov Sample covariance matrix
+#' @param x Sample matrix (dimension N by P)
+#' @param dxx Column sums-of-squares of the sample matrix
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @param phi Vector of noise variance
-#' @param e_obj A list of expected values from the E-Step
 #' @return The log-likelihood criterion
 #' @note For Internal Use
-loglik = function(x_cov, lambda, phi, e_obj) {
+loglik = function(x, dxx, lambda, phi) {
   phi_lambda = lambda / phi
   log_det = sum(log(phi)) + log(det(diag(1, ncol(lambda)) + crossprod(lambda, phi_lambda)))
-  -nrow(e_obj$ez)/2 * (log_det + sum(e_obj$inverse * x_cov))
+  trace_1 = crossprod(dxx, 1/phi)
+  inverse = solve(diag(ncol(lambda)) + crossprod(lambda, phi_lambda))
+  xlp = x %*% phi_lambda
+  trace_2 = xlp %*% inverse
+  trace_2 = sum(trace_2 * xlp)
+  -nrow(x)/2 * (log_det + (trace_1 - trace_2)/nrow(x))
 }

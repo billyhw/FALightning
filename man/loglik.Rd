@@ -4,16 +4,16 @@
 \alias{loglik}
 \title{Log-Likelihood}
 \usage{
-loglik(x_cov, lambda, phi, e_obj)
+loglik(x, dxx, lambda, phi)
 }
 \arguments{
-\item{x_cov}{Sample covariance matrix}
+\item{x}{Sample matrix (dimension N by P)}
+
+\item{dxx}{Column sums-of-squares of the sample matrix}
 
 \item{lambda}{Factor loading matrix (dimension P by P')}
 
 \item{phi}{Vector of noise variance}
-
-\item{e_obj}{A list of expected values from the E-Step}
 }
 \value{
 The log-likelihood criterion

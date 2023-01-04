@@ -10,6 +10,7 @@ factor_analyzer(
   n_iter = 200,
   tol = 1e-04,
   rotation = varimax,
+  fast_ini = F,
   verbose = F,
   ...
 )
@@ -24,6 +25,8 @@ factor_analyzer(
 \item{tol}{Tolerance for convergence}
 
 \item{rotation}{A function for factor rotation, e.g. varimax or oblimin from the GPArotation package}
+
+\item{fast_ini}{Whether to use irlba for fast approximate svd initialization}
 
 \item{verbose}{Whether to display EM updates}
 

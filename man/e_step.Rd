@@ -19,7 +19,6 @@ A list containing:
 \item{ez}{Expected latent scores from expected_scores()}
 \item{ezz}{Expected covariance of the latent factors from expected_cov()}
 \item{xez}{Covariance between observed and latent factors}
-\item{inverse}{The inverse covariance}
 }
 }
 \description{

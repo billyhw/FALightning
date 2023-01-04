@@ -18,5 +18,5 @@ The inverse of diag(phi) + lambda*lambda^T
 Fast Computation of Inverse Covariance Matrix
 }
 \note{
-For Internal Use
+For Internal Use. Deprecated as of Jan 5, 2023
 }

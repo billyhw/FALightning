@@ -4,14 +4,16 @@
 \alias{m_step}
 \title{EM Algorithm for Factor Analsysis: M-step}
 \usage{
-m_step(xx, e_obj, n)
+m_step(dxx, e_obj, n, lambda)
 }
 \arguments{
-\item{xx}{The cross-product matrix of the sample matrix}
+\item{dxx}{Column sums-of-squares of the sample matrix}
 
 \item{e_obj}{A list of expected values from the E-Step}
 
 \item{n}{Sample size}
+
+\item{lambda}{The factor loadings}
 }
 \value{
 A list containing:

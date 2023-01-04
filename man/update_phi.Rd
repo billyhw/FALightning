@@ -4,16 +4,16 @@
 \alias{update_phi}
 \title{Phi Update}
 \usage{
-update_phi(xx, n, xez, lambda)
+update_phi(dxx, n, xez, lambda)
 }
 \arguments{
+\item{dxx}{Column sums-of-squares of the sample matrix}
+
 \item{n}{Sample size}
 
 \item{xez}{Covariance between observed and latent factors}
 
 \item{lambda}{Factor loading matrix (dimension P by P')}
-
-\item{x}{Cross-product matrix of the sample matrix}
 }
 \value{
 The updated phi vector
