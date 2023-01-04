@@ -18,7 +18,7 @@ fast_inverse = function(lambda, phi) {
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @param inverse Inverse covariance matrix
 #' @return A set of coefficients for evaluating the expected latent factors
-#' @note For Internal Use
+#' @note For Internal Use. Deprecated as of Jan 5, 2023
 get_beta = function(lambda, inverse) crossprod(lambda, inverse)
 
 #' Coefficients for Evaluating the Expected Latent Factors: Fast Calculation
@@ -101,13 +101,10 @@ update_phi= function(dxx, n, xez, lambda) (dxx - rowSums(lambda*xez))/n
 #' }
 #' @note For Internal Use
 e_step = function(x, lambda, phi) {
-  # inverse = fast_inverse(lambda, phi)
-  # beta = get_beta(lambda, inverse)
   beta = fast_get_beta(lambda, phi)
   ez = expected_scores(x, beta)
   ezz = expected_cov(ez, beta, lambda)
   xez = get_xEz(x, ez)
-  # return(ls = list(ez = ez, ezz = ezz, xez = xez, inverse = inverse))
   return(ls = list(ez = ez, ezz = ezz, xez = xez))
 }
 

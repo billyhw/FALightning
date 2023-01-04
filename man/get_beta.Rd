@@ -18,5 +18,5 @@ A set of coefficients for evaluating the expected latent factors
 Coefficients for Evaluating the Expected Latent Factors
 }
 \note{
-For Internal Use
+For Internal Use. Deprecated as of Jan 5, 2023
 }
