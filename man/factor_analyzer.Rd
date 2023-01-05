@@ -10,7 +10,7 @@ factor_analyzer(
   n_iter = 200,
   tol = 1e-04,
   rotation = varimax,
-  fast_ini = F,
+  breath_of_lightning = F,
   verbose = F,
   ...
 )
@@ -26,7 +26,7 @@ factor_analyzer(
 
 \item{rotation}{A function for factor rotation, e.g. varimax or oblimin from the GPArotation package}
 
-\item{fast_ini}{Whether to use irlba for fast approximate svd initialization}
+\item{breath_of_lightning}{Whether to use irlba for fast approximate svd initialization}
 
 \item{verbose}{Whether to display EM updates}
 

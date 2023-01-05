@@ -133,7 +133,7 @@ m_step = function(dxx, e_obj, n, lambda) {
 #' @param n_iter Number of EM iterations
 #' @param tol Tolerance for convergence
 #' @param rotation A function for factor rotation, e.g. varimax or oblimin from the GPArotation package
-#' @param fast_ini Whether to use irlba for fast approximate svd initialization
+#' @param breath_of_lightning Whether to use irlba for fast approximate svd initialization
 #' @param verbose Whether to display EM updates
 #' @param ... Other parameters passed to the "rotation" function
 #' @return A list containing:
@@ -160,9 +160,9 @@ m_step = function(dxx, e_obj, n, lambda) {
 #' @export
 #' @import irlba
 factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = varimax,
-                           fast_ini = F, verbose = F, ...) {
+                           breath_of_lightning = F, verbose = F, ...) {
 
-  if (fast_ini) svd_fit = irlba::irlba(x, nu = 0, nv = n_factors)
+  if (breath_of_lightning) svd_fit = irlba::irlba(x, nu = 0, nv = n_factors)
   else svd_fit = svd(x, nu = 0, nv = n_factors)
   lambda = as.matrix(svd_fit$v[,1:n_factors])
   lambda = t(t(lambda)*(svd_fit$d[1:n_factors]/sqrt(nrow(x))))
