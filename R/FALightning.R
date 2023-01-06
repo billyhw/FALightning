@@ -160,7 +160,7 @@ m_step = function(dxx, e_obj, n, lambda) {
 #' @export
 #' @import irlba
 factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = varimax,
-                           breath_of_lightning = F, verbose = F, ...) {
+                           breath_of_lightning = T, verbose = F, ...) {
 
   if (breath_of_lightning) svd_fit = irlba::irlba(x, nu = 0, nv = n_factors)
   else svd_fit = svd(x, nu = 0, nv = n_factors)
