@@ -128,11 +128,19 @@ m_step = function(dxx, e_obj, n, lambda) {
 
 #' EM Algorithm for Factor Analsysis
 #'
+#' @description
+#' Performs Factor Analysis given a multivariate sample. For very large data sets
+#' (e.g. both sample size and dimension > 2000), the function can achieve
+#' substantial speed-ups by model initialization with the "
+#' "augmented implicitly restarted Lanczos bidiagonalization algorithm" (IRLBA).
+#' User can turn this on by setting "breath_of_lightning = T".
+#'
 #' @param x Sample matrix (dimension N by P)
 #' @param n_factors An integer: the number of factors
 #' @param n_iter Number of EM iterations
 #' @param tol Tolerance for convergence
 #' @param rotation A function for factor rotation, e.g. varimax or oblimin from the GPArotation package
+#' @param ini_method Initialization by PCA via SVD ("pca") or by random factor loading ("random")
 #' @param breath_of_lightning Whether to use irlba for fast approximate svd initialization
 #' @param verbose Whether to display EM updates
 #' @param ... Other parameters passed to the "rotation" function
@@ -159,13 +167,17 @@ m_step = function(dxx, e_obj, n, lambda) {
 #' fit_promax$loadings
 #' @export
 #' @import irlba
-factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-4, rotation = varimax,
-                           breath_of_lightning = T, verbose = F, ...) {
+factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-6, rotation = varimax,
+                           ini_method = c("pca", "random"), breath_of_lightning = F, verbose = F, ...) {
 
-  if (breath_of_lightning) svd_fit = irlba::irlba(x, nu = 0, nv = n_factors)
-  else svd_fit = svd(x, nu = 0, nv = n_factors)
-  lambda = as.matrix(svd_fit$v[,1:n_factors])
-  lambda = t(t(lambda)*(svd_fit$d[1:n_factors]/sqrt(nrow(x))))
+  ini_method = match.arg(ini_method)
+  if (ini_method == "pca") {
+    if (breath_of_lightning) svd_fit = irlba::irlba(x, nu = 0, nv = n_factors)
+    else svd_fit = svd(x, nu = 0, nv = n_factors)
+    lambda = as.matrix(svd_fit$v[,1:n_factors])
+    lambda = t(t(lambda)*(svd_fit$d[1:n_factors]/sqrt(nrow(x))))
+  }
+  else lambda = matrix(rnorm(ncol(x) * n_factors, sd = 0.1), ncol(x), n_factors)
   dxx = colSums(x^2)
   phi = pmax(dxx/nrow(x) - rowSums(lambda^2), 1e-2)
   crit = rep(NA, n_iter)

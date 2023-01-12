@@ -8,8 +8,9 @@ factor_analyzer(
   x,
   n_factors,
   n_iter = 200,
-  tol = 1e-04,
+  tol = 1e-06,
   rotation = varimax,
+  ini_method = c("pca", "random"),
   breath_of_lightning = F,
   verbose = F,
   ...
@@ -25,6 +26,8 @@ factor_analyzer(
 \item{tol}{Tolerance for convergence}
 
 \item{rotation}{A function for factor rotation, e.g. varimax or oblimin from the GPArotation package}
+
+\item{ini_method}{Initialization by PCA via SVD ("pca") or by random factor loading ("random")}
 
 \item{breath_of_lightning}{Whether to use irlba for fast approximate svd initialization}
 
@@ -43,7 +46,11 @@ A list containing:
 }
 }
 \description{
-EM Algorithm for Factor Analsysis
+Performs Factor Analysis given a multivariate sample. For very large data sets
+(e.g. both sample size and dimension > 2000), the function can achieve
+substantial speed-ups by model initialization with the "
+"augmented implicitly restarted Lanczos bidiagonalization algorithm" (IRLBA).
+User can turn this on by setting "breath_of_lightning = T".
 }
 \examples{
 set.seed(8)
