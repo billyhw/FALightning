@@ -221,5 +221,5 @@ loglik = function(x, dxx, lambda, phi) {
   xlp = x %*% phi_lambda
   trace_2 = xlp %*% inverse
   trace_2 = sum(trace_2 * xlp)
-  -nrow(x)*ncol(x)*log(2*pi)/2 -nrow(x)/2 * (log_det + (trace_1 - trace_2)/nrow(x))
+  -nrow(x)*ncol(x)*log(2*pi)/2 - nrow(x)/2 * (log_det + (trace_1 - trace_2)/nrow(x))
 }
