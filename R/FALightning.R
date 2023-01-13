@@ -223,3 +223,20 @@ loglik = function(x, dxx, lambda, phi) {
   trace_2 = sum(trace_2 * xlp)
   -nrow(x)*ncol(x)*log(2*pi)/2 - nrow(x)/2 * (log_det + (trace_1 - trace_2)/nrow(x))
 }
+
+#' Akaike Information Criterion (AIC) for Factor Analysis
+#'
+#' @param fit A fitted object from factor_analyzer()
+#' @return The AIC
+#' @note For Internal Use
+#' @examples
+#' set.seed(8)
+#' z = matrix(rnorm(2000), 1000, 2)
+#' lambda_orig = matrix(rnorm(20, sd = 1), nrow = 10, ncol = 2)
+#' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
+#' aic_vec = rep(0, 5)
+#' for (i in seq_along(aic_vec)) aic_vec[i] = aic_fa(factor_analyzer(x, i, rotation = NULL))
+#' which.min(aic_vec)
+#' @export
+aic_fa = function(fit) 2*(prod(dim(fit$loadings)) + length(fit$phi) - fit$crit[length(fit$crit)])
+
