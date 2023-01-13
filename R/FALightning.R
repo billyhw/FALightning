@@ -139,14 +139,13 @@ m_step = function(dxx, e_obj, n, lambda) {
 #' @param n_factors An integer: the number of factors
 #' @param n_iter Number of EM iterations
 #' @param tol Tolerance for convergence
-#' @param rotation A function for factor rotation, e.g. varimax or oblimin from the GPArotation package
 #' @param ini_method Initialization by PCA via SVD ("pca") or by random factor loading ("random")
 #' @param breath_of_lightning Whether to use irlba for fast approximate svd initialization
 #' @param verbose Whether to display EM updates
 #' @param ... Other parameters passed to the "rotation" function
 #' @return A list containing:
 #' \describe{
-#'   \item{loadings}{If rotation = NULL, the factor loadings estimate. Otherwise, the object returned by the "rotation" function.}
+#'   \item{loadings}{The factor loadings estimate.}
 #'   \item{phi}{The phi vector estimate}
 #'   \item{scores}{The expected factor scores}
 #'   \item{crit}{The log-likelihood criterion per iteration}
@@ -161,13 +160,11 @@ m_step = function(dxx, e_obj, n, lambda) {
 #' fit = factor_analyzer(x, 2, rotation = NULL)
 #' plot(fit$crit, type = "l")
 #' fit$loadings
-#' fit_varimax = factor_analyzer(x, 2)
-#' fit_varimax$loadings
-#' fit_promax = factor_analyzer(x, 2, rotation = promax)
-#' fit_promax$loadings
+#' varimax(fit$loadings)
+#' promax(fit$loadings)
 #' @export
 #' @import irlba
-factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-6, rotation = varimax,
+factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-6,
                            ini_method = c("pca", "random"), breath_of_lightning = F, verbose = F, ...) {
 
   ini_method = match.arg(ini_method)
@@ -192,8 +189,10 @@ factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-6, rotation = va
     if (verbose) message("iter = ", i, ", crit = ", crit[i])
   }
 
-  if (is.null(rotation)) loadings = lambda
-  else loadings = rotation(lambda, ...)
+  # if (is.null(rotation)) loadings = lambda
+  # else loadings = rotation(lambda, ...)
+
+  loadings = lambda
 
   crit = crit[!is.na(crit)]
   converge_status = 0

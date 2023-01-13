@@ -9,7 +9,6 @@ factor_analyzer(
   n_factors,
   n_iter = 200,
   tol = 1e-06,
-  rotation = varimax,
   ini_method = c("pca", "random"),
   breath_of_lightning = F,
   verbose = F,
@@ -25,8 +24,6 @@ factor_analyzer(
 
 \item{tol}{Tolerance for convergence}
 
-\item{rotation}{A function for factor rotation, e.g. varimax or oblimin from the GPArotation package}
-
 \item{ini_method}{Initialization by PCA via SVD ("pca") or by random factor loading ("random")}
 
 \item{breath_of_lightning}{Whether to use irlba for fast approximate svd initialization}
@@ -38,7 +35,7 @@ factor_analyzer(
 \value{
 A list containing:
 \describe{
-  \item{loadings}{If rotation = NULL, the factor loadings estimate. Otherwise, the object returned by the "rotation" function.}
+  \item{loadings}{The factor loadings estimate.}
   \item{phi}{The phi vector estimate}
   \item{scores}{The expected factor scores}
   \item{crit}{The log-likelihood criterion per iteration}
@@ -60,8 +57,6 @@ x = z \%*\% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
 fit = factor_analyzer(x, 2, rotation = NULL)
 plot(fit$crit, type = "l")
 fit$loadings
-fit_varimax = factor_analyzer(x, 2)
-fit_varimax$loadings
-fit_promax = factor_analyzer(x, 2, rotation = promax)
-fit_promax$loadings
+varimax(fit$loadings)
+promax(fit$loadings)
 }
