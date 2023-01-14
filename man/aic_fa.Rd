@@ -16,7 +16,8 @@ The AIC
 Akaike Information Criterion (AIC) for Factor Analysis
 }
 \note{
-For Internal Use
+The AIC formula used is from Akaike (1987) Pyschometrika, 52(3):317-322.
+It is not exactly the same as the typical -2(loglik) + 2(num_parameter).
 }
 \examples{
 set.seed(8)

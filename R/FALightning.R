@@ -227,7 +227,8 @@ loglik = function(x, dxx, lambda, phi) {
 #'
 #' @param fit A fitted object from factor_analyzer()
 #' @return The AIC
-#' @note For Internal Use
+#' @note The AIC formula used is from Akaike (1987) Pyschometrika, 52(3):317-322.
+#' It is not exactly the same as the typical -2(loglik) + 2(num_parameter).
 #' @examples
 #' set.seed(8)
 #' z = matrix(rnorm(2000), 1000, 2)
@@ -237,5 +238,40 @@ loglik = function(x, dxx, lambda, phi) {
 #' for (i in seq_along(aic_vec)) aic_vec[i] = aic_fa(factor_analyzer(x, i, rotation = NULL))
 #' which.min(aic_vec)
 #' @export
-aic_fa = function(fit) 2*(prod(dim(fit$loadings)) + length(fit$phi) - fit$crit[length(fit$crit)])
+aic_fa = function(fit) {
+  p = nrow(fit$loadings)
+  k = ncol(fit$loadings)
+  -2*fit$crit[length(fit$crit)] + 2*(p*(k + 1)) - k*(k-1)
+}
+
+
+#' Likeilood Ratio Test for Goodness of Fit
+#'
+#' @param cov_x The sample covariance matrix
+#' @param n The sample size
+#' @param fit A fitted object from factor_analyzer()
+#' @return A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), and the p-value.
+#' @note The formula used contains the Bartlett correction.
+#' @examples
+#' set.seed(8)
+#' z = matrix(rnorm(3000), 1000, 3)
+#' lambda_orig = matrix(rnorm(30, sd = 1), nrow = 10, ncol = 3)
+#' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
+#' s = cov(x)/nrow(x)*(nrow(x) - 1)
+#' p_vec = rep(0, 5)
+#' for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(s, nrow(x), factor_analyzer(x, i, rotation = NULL))$p_val
+#' p_vec
+#' @export
+lrt_fa = function(cov_x, n, fit) {
+  p = ncol(cov_x)
+  lambda = fit$loadings
+  phi = fit$phi
+  m = ncol(lambda)
+  phi_lambda = lambda / phi
+  log_det_fa = sum(log(phi)) + log(det(diag(1, ncol(lambda)) + crossprod(lambda, phi_lambda)))
+  log_det_s = log(det(cov_x))
+  chi_sq = (n - 1 - (2*p + 5)/6 - 2*m/3) * (log_det_fa - log_det_s)
+  df = ((p-m)^2 - p - m)/2
+  return(ls = list(chi_sq = chi_sq, df = df, p_val = pchisq(chi_sq, df = df, lower.tail = F)))
+}
 
