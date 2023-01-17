@@ -113,14 +113,13 @@ e_step = function(x, lambda, phi) {
 #' @param dxx Column sums-of-squares of the sample matrix
 #' @param e_obj A list of expected values from the E-Step
 #' @param n Sample size
-#' @param lambda The factor loadings
 #' @return A list containing:
 #' \describe{
 #' \item{lambda}{The updated lambda matrix}
 #' \item{phi}{The updated phi vector}
 #' }
 #' @note For Internal Use
-m_step = function(dxx, e_obj, n, lambda) {
+m_step = function(dxx, e_obj, n) {
   lambda = update_lambda(e_obj$xez, e_obj$ezz)
   phi = update_phi(dxx, n, e_obj$xez, lambda)
   return(ls = list(lambda = lambda, phi = phi))
@@ -183,7 +182,7 @@ factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-6,
     e_obj = e_step(x, lambda, phi)
     crit[i] = loglik(x, dxx, lambda, phi)
     if (i > 1) if ((crit[i]-crit[i-1]) < tol) break
-    m_obj = m_step(dxx, e_obj, nrow(x), lambda)
+    m_obj = m_step(dxx, e_obj, nrow(x))
     lambda = m_obj$lambda
     phi = m_obj$phi
     if (verbose) message("iter = ", i, ", crit = ", crit[i])
