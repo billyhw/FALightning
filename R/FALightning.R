@@ -250,7 +250,6 @@ aic_fa = function(fit) {
 #' @param n The sample size
 #' @param fit A fitted object from factor_analyzer()
 #' @return A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), and the p-value.
-#' @note The formula used contains the Bartlett correction.
 #' @examples
 #' set.seed(8)
 #' z = matrix(rnorm(3000), 1000, 3)
@@ -269,7 +268,9 @@ lrt_fa = function(cov_x, n, fit) {
   phi_lambda = lambda / phi
   log_det_fa = sum(log(phi)) + log(det(diag(1, ncol(lambda)) + crossprod(lambda, phi_lambda)))
   log_det_s = log(det(cov_x))
-  chi_sq = (n - 1 - (2*p + 5)/6 - 2*m/3) * (log_det_fa - log_det_s)
+  # chi_sq = (n - 1 - (2*p + 5)/6 - 2*m/3) * (log_det_fa - log_det_s)
+  inverse_fa = fast_inverse(lambda, phi)
+  chi_sq = n * (log_det_fa - log_det_s + sum(cov_x*inverse_fa) - p)
   df = ((p-m)^2 - p - m)/2
   return(ls = list(chi_sq = chi_sq, df = df, p_val = pchisq(chi_sq, df = df, lower.tail = F)))
 }

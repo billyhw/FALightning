@@ -19,9 +19,6 @@ A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), a
 \description{
 Likeilood Ratio Test for Goodness of Fit
 }
-\note{
-The formula used contains the Bartlett correction.
-}
 \examples{
 set.seed(8)
 z = matrix(rnorm(3000), 1000, 3)
