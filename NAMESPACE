@@ -2,5 +2,6 @@
 
 export(aic_fa)
 export(factor_analyzer)
+export(get_scores)
 export(lrt_fa)
 import(irlba)

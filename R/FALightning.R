@@ -275,3 +275,22 @@ lrt_fa = function(cov_x, n, fit) {
   return(ls = list(chi_sq = chi_sq, df = df, p_val = pchisq(chi_sq, df = df, lower.tail = F)))
 }
 
+#' Factor Scores
+#'
+#' @param fit A fitted object from factor_analyzer()
+#' @param newdata A new data set for scores computation
+#' @return The projected scores of newdata
+#' @examples
+#' set.seed(8)
+#' z = matrix(rnorm(3000), 1000, 3)
+#' z_2 = matrix(rnorm(3000), 1000, 3)
+#' lambda_orig = matrix(rnorm(30, sd = 1), nrow = 10, ncol = 3)
+#' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
+#' newdata = z_2 %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
+#' fit = factor_analyzer(x, 2, rotation = NULL)
+#' scores = get_scores(fit, newdata)
+#' @export
+get_scores = function(fit, newdata) {
+  beta = fast_get_beta(fit$loadings, fit$phi)
+  expected_scores(newdata, beta)
+}
