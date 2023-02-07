@@ -294,3 +294,51 @@ get_scores = function(fit, newdata) {
   beta = fast_get_beta(fit$loadings, fit$phi)
   expected_scores(newdata, beta)
 }
+
+
+
+#' EM Algorithm for Factor Analsysis with Covariance Input
+#'
+#' @description
+#' Performs Factor Analysis given a covariance/correlation matrix.
+#'
+#' @param cov_x Sample covariance/correlation matrix
+#' @param n_factors An integer: the number of factors
+#' @param covar Whether input cov_x is a covariance (T) or correlation (F) matrix
+#' @param n_sample Number of samples to draw from Multivariate Gaussian
+#' @param ini_method The EM initialization method ("pca" recommended)
+#' @param breath_of_lighting Whether to use irlba for initialization (recommended)
+#' @param ... Other parameters passed to the "factor_analyzer" function
+#' @return A fitted factor analyzer object
+#'
+#' @note The function runs EM on a simulated multivariate Gaussian sample
+#' to obtain approximate maximum likelihood estimates. n_sample, the number of
+#' samples to simulate, should be large (200000 based on our benchmark experiments).
+#' As EM will performed on this large data set, initializing EM by
+#' pca + breath_of_lightning is recommended.
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(8)
+#' z = matrix(rnorm(2000), 1000, 2)
+#' lambda_orig = matrix(rnorm(20, sd = 1), nrow = 10, ncol = 2)
+#' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
+#' fit = factor_analyzer(x, 2, rotation = NULL)
+#' plot(fit$crit, type = "l")
+#' varimax(fit$loadings)
+#' cov_x = cov(x)*(nrow(x)-1)/nrow(x)
+#' fit_cov = factor_analyzer_cov(cov_x, 2, covar = T, n_sample = 200000)
+#' varimax(fit_cov$loadings)
+#' }
+#' @export
+#' @import mvtnorm
+factor_analyzer_cov = function(cov_x, n_factors, covar = NULL, n_sample = 10000,
+                           ini_method = "pca", breath_of_lightning = F, ...) {
+
+  if (is.null(covar)) stop("covar must be specified (Is cov_x a covariance (T) or correlation matrix (F).")
+  x_samp = mvtnorm::rmvnorm(n_sample, sigma = cov_x)
+  if (!covar) x_samp = scale(x_samp)
+  factor_analyzer(x_samp, n_factors = n_factors,
+                  ini_method = ini_method, breath_of_lightning = breath_of_lightning, ...)
+
+}

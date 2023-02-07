@@ -2,6 +2,8 @@
 
 export(aic_fa)
 export(factor_analyzer)
+export(factor_analyzer_cov)
 export(get_scores)
 export(lrt_fa)
 import(irlba)
+import(mvtnorm)
