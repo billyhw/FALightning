@@ -141,7 +141,6 @@ m_step = function(dxx, e_obj, n) {
 #' @param ini_method Initialization by PCA via SVD ("pca") or by random factor loading ("random")
 #' @param breath_of_lightning Whether to use irlba for fast approximate svd initialization
 #' @param verbose Whether to display EM updates
-#' @param ... Other parameters passed to the "rotation" function
 #' @return A list containing:
 #' \describe{
 #'   \item{loadings}{The factor loadings estimate.}
@@ -156,7 +155,7 @@ m_step = function(dxx, e_obj, n) {
 #' z = matrix(rnorm(2000), 1000, 2)
 #' lambda_orig = matrix(rnorm(20, sd = 1), nrow = 10, ncol = 2)
 #' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
-#' fit = factor_analyzer(x, 2, rotation = NULL)
+#' fit = factor_analyzer(x, 2)
 #' plot(fit$crit, type = "l")
 #' fit$loadings
 #' varimax(fit$loadings)
@@ -164,7 +163,7 @@ m_step = function(dxx, e_obj, n) {
 #' @export
 #' @import irlba
 factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-6,
-                           ini_method = c("pca", "random"), breath_of_lightning = F, verbose = F, ...) {
+                           ini_method = c("pca", "random"), breath_of_lightning = F, verbose = F) {
 
   ini_method = match.arg(ini_method)
   if (ini_method == "pca") {

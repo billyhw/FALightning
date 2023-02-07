@@ -11,8 +11,7 @@ factor_analyzer(
   tol = 1e-06,
   ini_method = c("pca", "random"),
   breath_of_lightning = F,
-  verbose = F,
-  ...
+  verbose = F
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ factor_analyzer(
 \item{breath_of_lightning}{Whether to use irlba for fast approximate svd initialization}
 
 \item{verbose}{Whether to display EM updates}
-
-\item{...}{Other parameters passed to the "rotation" function}
 }
 \value{
 A list containing:
@@ -54,7 +51,7 @@ set.seed(8)
 z = matrix(rnorm(2000), 1000, 2)
 lambda_orig = matrix(rnorm(20, sd = 1), nrow = 10, ncol = 2)
 x = z \%*\% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
-fit = factor_analyzer(x, 2, rotation = NULL)
+fit = factor_analyzer(x, 2)
 plot(fit$crit, type = "l")
 fit$loadings
 varimax(fit$loadings)
