@@ -333,7 +333,7 @@ get_scores = function(fit, newdata) {
 #' @export
 #' @import mvtnorm
 factor_analyzer_cov = function(cov_x, n_factors, covar = NULL, n_sample = 10000,
-                           ini_method = "pca", breath_of_lightning = F, ...) {
+                           ini_method = "pca", breath_of_lightning = T, ...) {
 
   if (is.null(covar)) stop("covar must be specified (Is cov_x a covariance (T) or correlation matrix (F).")
   x_samp = mvtnorm::rmvnorm(n_sample, sigma = cov_x)

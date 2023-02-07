@@ -10,7 +10,7 @@ factor_analyzer_cov(
   covar = NULL,
   n_sample = 10000,
   ini_method = "pca",
-  breath_of_lightning = F,
+  breath_of_lightning = T,
   ...
 )
 }
