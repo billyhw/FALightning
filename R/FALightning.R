@@ -314,7 +314,7 @@ get_scores = function(fit, newdata) {
 #' @note The function runs EM on a simulated multivariate Gaussian sample
 #' to obtain approximate maximum likelihood estimates. n_sample, the number of
 #' samples to simulate, should be large (200000 based on our benchmark experiments).
-#' As EM will performed on this large data set, initializing EM by
+#' As EM will be performed on this large data set, initializing EM by
 #' pca + breath_of_lightning is recommended.
 #'
 #' @examples
