@@ -335,7 +335,7 @@ get_scores = function(fit, newdata) {
 factor_analyzer_cov = function(cov_x, n_factors, covar = NULL, n_sample = 10000,
                            ini_method = "pca", breath_of_lightning = T, ...) {
 
-  if (is.null(covar)) stop("covar must be specified (Is cov_x a covariance (T) or correlation matrix (F).")
+  if (is.null(covar)) stop("covar must be specified (Is cov_x a covariance (T) or correlation matrix (F)?)")
   x_samp = mvtnorm::rmvnorm(n_sample, sigma = cov_x)
   if (!covar) x_samp = scale(x_samp)
   factor_analyzer(x_samp, n_factors = n_factors,
