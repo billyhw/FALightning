@@ -202,13 +202,13 @@ factor_analyzer = function(x, n_factors, n_iter = 200, tol = 1e-6,
 
 }
 
-#' Log-Likelihood
+#' Expected Log-Likelihood
 #'
 #' @param x Sample matrix (dimension N by P)
 #' @param dxx Column sums-of-squares of the sample matrix
 #' @param lambda Factor loading matrix (dimension P by P')
 #' @param phi Vector of noise variance
-#' @return The log-likelihood criterion
+#' @return The Expected log-likelihood for EM convergence monitoring
 #' @note For Internal Use
 loglik = function(x, dxx, lambda, phi) {
   phi_lambda = lambda / phi
@@ -224,22 +224,24 @@ loglik = function(x, dxx, lambda, phi) {
 #' Akaike Information Criterion (AIC) for Factor Analysis
 #'
 #' @param fit A fitted object from factor_analyzer()
+#' @param x_cov The sample covariance matrix (with denominator N instead of N-1)
 #' @return The AIC
 #' @note The AIC formula used is from Akaike (1987) Pyschometrika, 52(3):317-322.
-#' It is not exactly the same as the typical -2(loglik) + 2(num_parameter).
 #' @examples
 #' set.seed(8)
 #' z = matrix(rnorm(2000), 1000, 2)
 #' lambda_orig = matrix(rnorm(20, sd = 1), nrow = 10, ncol = 2)
 #' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
+#' x_cov = cov(x)*999/1000
 #' aic_vec = rep(0, 5)
-#' for (i in seq_along(aic_vec)) aic_vec[i] = aic_fa(factor_analyzer(x, i, rotation = NULL))
+#' for (i in seq_along(aic_vec)) aic_vec[i] = aic_fa(factor_analyzer(x, i), x_cov, 1000)
 #' which.min(aic_vec)
 #' @export
-aic_fa = function(fit) {
+aic_fa = function(fit, x_cov, n) {
   p = nrow(fit$loadings)
   k = ncol(fit$loadings)
-  -2*fit$crit[length(fit$crit)] + 2*(p*(k + 1)) - k*(k-1)
+  # -2*fit$crit[length(fit$crit)] + 2*(p*(k + 1)) - k*(k-1)
+  -2*loglik_cov(fit, x_cov, n) + 2*(p*(k + 1)) - k*(k-1)
 }
 
 
@@ -256,7 +258,7 @@ aic_fa = function(fit) {
 #' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
 #' s = cov(x)/nrow(x)*(nrow(x) - 1)
 #' p_vec = rep(0, 5)
-#' for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(s, nrow(x), factor_analyzer(x, i, rotation = NULL))$p_val
+#' for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(s, nrow(x), factor_analyzer(x, i))$p_val
 #' p_vec
 #' @export
 lrt_fa = function(cov_x, n, fit) {
@@ -274,6 +276,20 @@ lrt_fa = function(cov_x, n, fit) {
   return(ls = list(chi_sq = chi_sq, df = df, p_val = pchisq(chi_sq, df = df, lower.tail = F)))
 }
 
+#' Log-Likelihood
+#'
+#' @param fit A fitted object from factor_analyzer()
+#' @param n The sample size
+#' @return The log-likelihood criterion
+#' @note For Internal Use
+loglik_cov = function(fit, cov_x, n) {
+  lambda = fit$loadings
+  phi = fit$phi
+  phi_lambda = lambda / phi
+  log_det = sum(log(phi)) + log(det(diag(1, ncol(lambda)) + crossprod(lambda, phi_lambda)))
+  -n*nrow(lambda)*log(2*pi)/2 - n/2 * (log_det + sum(fast_inverse(lambda, phi) * cov_x))
+}
+
 #' Factor Scores
 #'
 #' @param fit A fitted object from factor_analyzer()
@@ -286,7 +302,7 @@ lrt_fa = function(cov_x, n, fit) {
 #' lambda_orig = matrix(rnorm(30, sd = 1), nrow = 10, ncol = 3)
 #' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
 #' newdata = z_2 %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
-#' fit = factor_analyzer(x, 2, rotation = NULL)
+#' fit = factor_analyzer(x, 2)
 #' scores = get_scores(fit, newdata)
 #' @export
 get_scores = function(fit, newdata) {
@@ -323,14 +339,14 @@ get_scores = function(fit, newdata) {
 #' lambda_orig = matrix(rnorm(20, sd = 1), nrow = 10, ncol = 2)
 #' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
 #'
-#' fit = factor_analyzer(x, 2, rotation = NULL)
+#' fit = factor_analyzer(x, 2)
 #' varimax(fit$loadings)
 #' cov_x = cov(x)*(nrow(x)-1)/nrow(x)
 #' fit_cov = factor_analyzer_cov(cov_x, 2, covar = T, n_sample = 200000)
 #' varimax(fit_cov$loadings)
 #'
 #' x = scale(x)
-#' fit = factor_analyzer(x, 2, rotation = NULL)
+#' fit = factor_analyzer(x, 2)
 #' varimax(fit$loadings)
 #' cor_x = cor(x)
 #' fit_cor = factor_analyzer_cov(cor_x, 2, covar = F, n_sample = 200000)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/FALightning.R
 \name{loglik}
 \alias{loglik}
-\title{Log-Likelihood}
+\title{Expected Log-Likelihood}
 \usage{
 loglik(x, dxx, lambda, phi)
 }
@@ -16,10 +16,10 @@ loglik(x, dxx, lambda, phi)
 \item{phi}{Vector of noise variance}
 }
 \value{
-The log-likelihood criterion
+The Expected log-likelihood for EM convergence monitoring
 }
 \description{
-Log-Likelihood
+Expected Log-Likelihood
 }
 \note{
 For Internal Use

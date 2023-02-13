@@ -4,10 +4,12 @@
 \alias{aic_fa}
 \title{Akaike Information Criterion (AIC) for Factor Analysis}
 \usage{
-aic_fa(fit)
+aic_fa(fit, x_cov, n)
 }
 \arguments{
 \item{fit}{A fitted object from factor_analyzer()}
+
+\item{x_cov}{The sample covariance matrix (with denominator N instead of N-1)}
 }
 \value{
 The AIC
@@ -17,14 +19,14 @@ Akaike Information Criterion (AIC) for Factor Analysis
 }
 \note{
 The AIC formula used is from Akaike (1987) Pyschometrika, 52(3):317-322.
-It is not exactly the same as the typical -2(loglik) + 2(num_parameter).
 }
 \examples{
 set.seed(8)
 z = matrix(rnorm(2000), 1000, 2)
 lambda_orig = matrix(rnorm(20, sd = 1), nrow = 10, ncol = 2)
 x = z \%*\% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
+x_cov = cov(x)*999/1000
 aic_vec = rep(0, 5)
-for (i in seq_along(aic_vec)) aic_vec[i] = aic_fa(factor_analyzer(x, i, rotation = NULL))
+for (i in seq_along(aic_vec)) aic_vec[i] = aic_fa(factor_analyzer(x, i), x_cov, 1000)
 which.min(aic_vec)
 }

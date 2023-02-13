@@ -24,6 +24,6 @@ z_2 = matrix(rnorm(3000), 1000, 3)
 lambda_orig = matrix(rnorm(30, sd = 1), nrow = 10, ncol = 3)
 x = z \%*\% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
 newdata = z_2 \%*\% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
-fit = factor_analyzer(x, 2, rotation = NULL)
+fit = factor_analyzer(x, 2)
 scores = get_scores(fit, newdata)
 }
