@@ -4,17 +4,17 @@
 \alias{lrt_fa}
 \title{Likeilood Ratio Test for Goodness of Fit}
 \usage{
-lrt_fa(cov_x, n, fit)
+lrt_fa(fit, cov_x, n)
 }
 \arguments{
+\item{fit}{A fitted object from factor_analyzer()}
+
 \item{cov_x}{The sample covariance matrix}
 
 \item{n}{The sample size}
-
-\item{fit}{A fitted object from factor_analyzer()}
 }
 \value{
-A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), and the p-value.
+A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), and the p-value (p_val).
 }
 \description{
 Likeilood Ratio Test for Goodness of Fit
@@ -26,6 +26,6 @@ lambda_orig = matrix(rnorm(30, sd = 1), nrow = 10, ncol = 3)
 x = z \%*\% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
 s = cov(x)/nrow(x)*(nrow(x) - 1)
 p_vec = rep(0, 5)
-for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(s, nrow(x), factor_analyzer(x, i))$p_val
+for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(factor_analyzer(x, i), s, nrow(x))$p_val
 p_vec
 }

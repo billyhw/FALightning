@@ -10,6 +10,8 @@ aic_fa(fit, x_cov, n)
 \item{fit}{A fitted object from factor_analyzer()}
 
 \item{x_cov}{The sample covariance matrix (with denominator N instead of N-1)}
+
+\item{n}{The sample size used to estimate x_cov}
 }
 \value{
 The AIC

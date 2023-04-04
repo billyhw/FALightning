@@ -251,7 +251,7 @@ aic_fa = function(fit, x_cov, n) {
 #' @param fit A fitted object from factor_analyzer()
 #' @param cov_x The sample covariance matrix
 #' @param n The sample size
-#' @return A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), and the p-value.
+#' @return A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), and the p-value (p_val).
 #' @examples
 #' set.seed(8)
 #' z = matrix(rnorm(3000), 1000, 3)
@@ -259,7 +259,7 @@ aic_fa = function(fit, x_cov, n) {
 #' x = z %*% t(lambda_orig) + matrix(rnorm(10000, sd = sqrt(0.1)), 1000, 10)
 #' s = cov(x)/nrow(x)*(nrow(x) - 1)
 #' p_vec = rep(0, 5)
-#' for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(s, nrow(x), factor_analyzer(x, i))$p_val
+#' for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(factor_analyzer(x, i), s, nrow(x))$p_val
 #' p_vec
 #' @export
 lrt_fa = function(fit, cov_x, n) {
