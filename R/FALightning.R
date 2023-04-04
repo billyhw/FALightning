@@ -225,6 +225,7 @@ loglik = function(x, dxx, lambda, phi) {
 #'
 #' @param fit A fitted object from factor_analyzer()
 #' @param x_cov The sample covariance matrix (with denominator N instead of N-1)
+#' @param n The sample size used to estimate x_cov
 #' @return The AIC
 #' @note The AIC formula used is from Akaike (1987) Pyschometrika, 52(3):317-322.
 #' @examples
@@ -247,9 +248,9 @@ aic_fa = function(fit, x_cov, n) {
 
 #' Likeilood Ratio Test for Goodness of Fit
 #'
+#' @param fit A fitted object from factor_analyzer()
 #' @param cov_x The sample covariance matrix
 #' @param n The sample size
-#' @param fit A fitted object from factor_analyzer()
 #' @return A list contain the chi-square statistics (chi_sq), the degree-of-freedom (df), and the p-value.
 #' @examples
 #' set.seed(8)
@@ -261,7 +262,7 @@ aic_fa = function(fit, x_cov, n) {
 #' for (i in seq_along(p_vec)) p_vec[i] = lrt_fa(s, nrow(x), factor_analyzer(x, i))$p_val
 #' p_vec
 #' @export
-lrt_fa = function(cov_x, n, fit) {
+lrt_fa = function(fit, cov_x, n) {
   p = ncol(cov_x)
   lambda = fit$loadings
   phi = fit$phi
